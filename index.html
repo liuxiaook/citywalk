@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>东城边走边听｜西总布胡同</title>
+  <style>
+    :root {
+      --bg: #f6f1e8;
+      --card: rgba(255,255,255,0.82);
+      --text: #2a241d;
+      --muted: #6c6257;
+      --accent: #8f4f2a;
+      --accent-2: #c98b63;
+      --line: rgba(42,36,29,0.08);
+      --shadow: 0 12px 32px rgba(62, 43, 26, 0.12);
+      --radius: 22px;
+    }
+
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", sans-serif;
+      background: linear-gradient(180deg, #efe5d6 0%, #f7f3ec 38%, #f9f7f3 100%);
+      color: var(--text);
+    }
+
+    body {
+      min-height: 100vh;
+    }
+
+    .phone {
+      width: 100%;
+      max-width: 430px;
+      margin: 0 auto;
+      min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
+      background: transparent;
+    }
+
+    .hero {
+      padding: 22px 20px 18px;
+      position: relative;
+    }
+
+    .hero::before {
+      content: "";
+      position: absolute;
+      top: -60px;
+      right: -40px;
+      width: 200px;
+      height: 200px;
+      background: radial-gradient(circle, rgba(201,139,99,0.25) 0%, rgba(201,139,99,0) 70%);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.65);
+      border: 1px solid rgba(255,255,255,0.6);
+      backdrop-filter: blur(10px);
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 31px;
+      line-height: 1.15;
+      letter-spacing: -0.03em;
+    }
+
+    .subtitle {
+      margin: 12px 0 0;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.7;
+    }
+
+    .hero-card {
+      margin-top: 18px;
+      background: linear-gradient(145deg, rgba(255,255,255,0.92), rgba(255,248,241,0.78));
+      border-radius: 26px;
+      padding: 18px;
+      box-shadow: var(--shadow);
+      border: 1px solid rgba(255,255,255,0.7);
+    }
+
+    .route-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .route-title h2 {
+      margin: 0;
+      font-size: 22px;
+      line-height: 1.25;
+    }
+
+    .tag {
+      font-size: 12px;
+      color: var(--accent);
+      background: rgba(143,79,42,0.09);
+      padding: 6px 10px;
+      border-radius: 999px;
+      white-space: nowrap;
+    }
+
+    .meta {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .meta-item {
+      background: rgba(255,255,255,0.7);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 12px;
+    }
+
+    .meta-item .label {
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    .meta-item .value {
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .cta-row {
+      display: flex;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .btn {
+      appearance: none;
+      border: 0;
+      border-radius: 18px;
+      padding: 14px 16px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform .2s ease, opacity .2s ease;
+    }
+
+    .btn:active { transform: scale(0.98); }
+
+    .btn-primary {
+      flex: 1;
+      color: #fff;
+      background: linear-gradient(135deg, var(--accent), #a86238);
+      box-shadow: 0 10px 24px rgba(143,79,42,0.24);
+    }
+
+    .btn-secondary {
+      background: rgba(255,255,255,0.72);
+      color: var(--text);
+      border: 1px solid var(--line);
+      min-width: 92px;
+    }
+
+    .section {
+      padding: 8px 20px 0;
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .section-title {
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+
+    .section-link {
+      font-size: 13px;
+      color: var(--accent);
+    }
+
+    .map-card {
+      position: relative;
+      height: 220px;
+      border-radius: 26px;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 16% 28%, rgba(255,255,255,0.75) 0 6px, transparent 7px),
+        radial-gradient(circle at 28% 42%, rgba(255,255,255,0.75) 0 6px, transparent 7px),
+        radial-gradient(circle at 49% 34%, rgba(255,255,255,0.75) 0 6px, transparent 7px),
+        radial-gradient(circle at 65% 54%, rgba(255,255,255,0.75) 0 6px, transparent 7px),
+        radial-gradient(circle at 80% 38%, rgba(255,255,255,0.75) 0 6px, transparent 7px),
+        linear-gradient(135deg, #d8c2a8 0%, #e8dac9 34%, #efe7dd 100%);
+      box-shadow: var(--shadow);
+    }
+
+    .map-card::before,
+    .map-card::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(110deg, transparent 0 12%, rgba(144, 109, 79, 0.18) 12% 14%, transparent 14% 27%, rgba(144, 109, 79, 0.15) 27% 29%, transparent 29% 55%, rgba(144, 109, 79, 0.18) 55% 57%, transparent 57%),
+        linear-gradient(180deg, transparent 0 25%, rgba(139, 114, 90, 0.13) 25% 27%, transparent 27% 41%, rgba(139,114,90,0.12) 41% 43%, transparent 43% 66%, rgba(139,114,90,0.1) 66% 68%, transparent 68%);
+      mix-blend-mode: multiply;
+      opacity: .9;
+    }
+
+    .route-line {
+      position: absolute;
+      left: 32px;
+      right: 34px;
+      top: 108px;
+      height: 4px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #a25c32, #c7875d);
+      transform: rotate(-8deg);
+      box-shadow: 0 0 0 8px rgba(162,92,50,0.08);
+    }
+
+    .point {
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #fff;
+      border: 4px solid var(--accent);
+      box-shadow: 0 6px 14px rgba(143,79,42,0.2);
+    }
+
+    .point.active { background: #ffd7b8; }
+
+    .point-label {
+      position: absolute;
+      transform: translate(-50%, -140%);
+      background: rgba(255,255,255,0.9);
+      padding: 6px 8px;
+      border-radius: 12px;
+      font-size: 11px;
+      white-space: nowrap;
+      color: var(--text);
+      box-shadow: 0 6px 12px rgba(0,0,0,0.06);
+    }
+
+    .floating-now {
+      position: absolute;
+      left: 14px;
+      bottom: 14px;
+      padding: 10px 12px;
+      background: rgba(255,255,255,0.9);
+      border-radius: 16px;
+      font-size: 13px;
+      box-shadow: 0 8px 18px rgba(0,0,0,0.08);
+      max-width: 220px;
+    }
+
+    .cards {
+      display: grid;
+      gap: 14px;
+      padding-bottom: 100px;
+    }
+
+    .spot-card {
+      background: var(--card);
+      border-radius: 24px;
+      padding: 16px;
+      box-shadow: var(--shadow);
+      border: 1px solid rgba(255,255,255,0.75);
+      backdrop-filter: blur(10px);
+    }
+
+    .spot-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: flex-start;
+    }
+
+    .spot-num {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: rgba(143,79,42,0.1);
+      color: var(--accent);
+      font-size: 14px;
+      font-weight: 800;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .spot-title {
+      flex: 1;
+    }
+
+    .spot-title h3 {
+      margin: 0;
+      font-size: 17px;
+      line-height: 1.3;
+    }
+
+    .spot-sub {
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .audio {
+      margin-top: 14px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px;
+      background: rgba(255,255,255,0.76);
+      border-radius: 18px;
+      border: 1px solid var(--line);
+    }
+
+    .play {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      border: 0;
+      background: linear-gradient(135deg, var(--accent), #a86238);
+      color: #fff;
+      font-size: 14px;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .wave {
+      flex: 1;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .wave span {
+      width: 4px;
+      border-radius: 999px;
+      background: rgba(143,79,42,0.22);
+      animation: pulse 1.2s infinite ease-in-out;
+    }
+
+    .wave span:nth-child(1) { height: 8px; animation-delay: .1s; }
+    .wave span:nth-child(2) { height: 16px; animation-delay: .2s; }
+    .wave span:nth-child(3) { height: 22px; animation-delay: .3s; }
+    .wave span:nth-child(4) { height: 12px; animation-delay: .4s; }
+    .wave span:nth-child(5) { height: 18px; animation-delay: .5s; }
+    .wave span:nth-child(6) { height: 10px; animation-delay: .6s; }
+
+    @keyframes pulse {
+      0%, 100% { transform: scaleY(.8); opacity: .5; }
+      50% { transform: scaleY(1.15); opacity: 1; }
+    }
+
+    .spot-copy {
+      margin: 14px 0 0;
+      color: #3d342b;
+      font-size: 14px;
+      line-height: 1.8;
+    }
+
+    .spot-foot {
+      margin-top: 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .next {
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    .sticky-player {
+      position: fixed;
+      left: 50%;
+      bottom: 16px;
+      transform: translateX(-50%);
+      width: min(390px, calc(100vw - 24px));
+      background: rgba(39,30,24,0.92);
+      color: #fff;
+      border-radius: 22px;
+      padding: 14px 16px;
+      box-shadow: 0 16px 36px rgba(0,0,0,0.22);
+      backdrop-filter: blur(14px);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      z-index: 30;
+    }
+
+    .sticky-player button {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      border: 0;
+      background: #fff;
+      color: var(--accent);
+      font-weight: 800;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .player-copy {
+      min-width: 0;
+    }
+
+    .player-copy .kicker {
+      font-size: 11px;
+      color: rgba(255,255,255,0.7);
+      margin-bottom: 4px;
+    }
+
+    .player-copy .title {
+      font-size: 14px;
+      font-weight: 700;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .player-copy .desc {
+      font-size: 12px;
+      color: rgba(255,255,255,0.72);
+      margin-top: 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    @media (max-width: 380px) {
+      h1 { font-size: 28px; }
+      .meta { grid-template-columns: 1fr; }
+      .cta-row { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <div class="phone">
+    <section class="hero">
+      <div class="topbar">
+        <div class="pill">📍 北京·东城区</div>
+        <div>H5 MVP 预览</div>
+      </div>
+
+      <h1>东城边走边听</h1>
+      <p class="subtitle">
+        以西总布胡同为起点，用定位与语音，把胡同里的历史、人物和城市更新讲给你听。
+      </p>
+
+      <div class="hero-card">
+        <div class="route-title">
+          <div>
+            <div class="tag">首发路线</div>
+            <h2>西总布胡同故事漫游</h2>
+          </div>
+          <div class="tag">适合 citywalk</div>
+        </div>
+
+        <div class="meta">
+          <div class="meta-item">
+            <div class="label">推荐时长</div>
+            <div class="value">60—90 分钟</div>
+          </div>
+          <div class="meta-item">
+            <div class="label">首批点位</div>
+            <div class="value">5 个</div>
+          </div>
+          <div class="meta-item">
+            <div class="label">体验方式</div>
+            <div class="value">边走边听</div>
+          </div>
+        </div>
+
+        <div class="cta-row">
+          <button class="btn btn-primary" onclick="document.getElementById('map').scrollIntoView({behavior:'smooth'})">开始边走边听</button>
+          <button class="btn btn-secondary" onclick="document.getElementById('spots').scrollIntoView({behavior:'smooth'})">看点位</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="map">
+      <div class="section-header">
+        <div class="section-title">路线预览</div>
+        <div class="section-link">你已到达起点附近</div>
+      </div>
+
+      <div class="map-card">
+        <div class="route-line"></div>
+
+        <div class="point active" style="left: 34px; top: 112px;"></div>
+        <div class="point-label" style="left: 44px; top: 102px;">1 西总布西口</div>
+
+        <div class="point" style="left: 110px; top: 104px;"></div>
+        <div class="point-label" style="left: 119px; top: 93px;">4 9号院</div>
+
+        <div class="point" style="left: 184px; top: 98px;"></div>
+        <div class="point-label" style="left: 193px; top: 88px;">5 21号院</div>
+
+        <div class="point" style="left: 258px; top: 116px;"></div>
+        <div class="point-label" style="left: 267px; top: 105px;">7 74号</div>
+
+        <div class="point" style="left: 328px; top: 124px;"></div>
+        <div class="point-label" style="left: 336px; top: 114px;">8 更新观察点</div>
+
+        <div class="floating-now">🎧 检测到你已接近起点，建议先播放「西总布胡同西口」</div>
+      </div>
+    </section>
+
+    <section class="section" id="spots" style="margin-top: 18px;">
+      <div class="section-header">
+        <div class="section-title">点位讲解卡片</div>
+        <div class="section-link">MVP 示例</div>
+      </div>
+
+      <div class="cards">
+        <article class="spot-card" data-id="1">
+          <div class="spot-head">
+            <div class="spot-num">1</div>
+            <div class="spot-title">
+              <h3>西总布胡同西口</h3>
+              <div class="spot-sub">路线开场 · 约 60 秒</div>
+            </div>
+            <div class="tag">起点</div>
+          </div>
+          <div class="audio">
+            <button class="play">▶</button>
+            <div class="wave"><span></span><span></span><span></span><span></span><span></span><span></span></div>
+            <div style="font-size:12px;color:var(--muted);">正在预览播报感</div>
+          </div>
+          <p class="spot-copy">你现在到的，就是西总布胡同的入口。别看它安安静静，好像只是一条普通小路，这条胡同其实很有意思。它不长，但装下的内容不少：有名人旧居，有老院子，也有这几年城市更新留下的新变化。接下来这一路，不像是在看景点，更像是在一条胡同里，慢慢听懂一小段北京。</p>
+          <div class="spot-foot">
+            <span>📍 自动触发半径：50 米</span>
+            <span class="next">下一站：9号院 →</span>
+          </div>
+        </article>
+
+        <article class="spot-card" data-id="4">
+          <div class="spot-head">
+            <div class="spot-num">4</div>
+            <div class="spot-title">
+              <h3>9号院</h3>
+              <div class="spot-sub">人物点位 · 李济深、李宗仁相关</div>
+            </div>
+            <div class="tag">故事点</div>
+          </div>
+          <div class="audio">
+            <button class="play">▶</button>
+            <div class="wave"><span></span><span></span><span></span><span></span><span></span><span></span></div>
+            <div style="font-size:12px;color:var(--muted);">点开听完整讲解</div>
+          </div>
+          <p class="spot-copy">西总布胡同 9 号院，曾经和李济深、李宗仁两位近现代人物有关。胡同最有意思的地方就在这儿：外表看，它就是院墙、院门、窄路，看起来很平静；但只要你知道曾经谁在这里生活过、经过过，这条街的感觉立刻就不一样了。</p>
+          <div class="spot-foot">
+            <span>🕰 关键词：胡同里的历史人物</span>
+            <span class="next">下一站：21号院 →</span>
+          </div>
+        </article>
+
+        <article class="spot-card" data-id="5">
+          <div class="spot-head">
+            <div class="spot-num">5</div>
+            <div class="spot-title">
+              <h3>21号院</h3>
+              <div class="spot-sub">视角延伸 · 费正清旧居相关</div>
+            </div>
+            <div class="tag">国际视角</div>
+          </div>
+          <div class="audio">
+            <button class="play">▶</button>
+            <div class="wave"><span></span><span></span><span></span><span></span><span></span><span></span></div>
+            <div style="font-size:12px;color:var(--muted);">更像朋友边走边讲</div>
+          </div>
+          <p class="spot-copy">西总布胡同 21 号院，曾是费正清居住过的地方。这个信息很有意思，因为它说明，北京胡同不只是北京人自己的生活空间，它也曾是很多外国人认识中国、理解中国的一扇窗口。</p>
+          <div class="spot-foot">
+            <span>🌍 关键词：世界看北京</span>
+            <span class="next">下一站：74号 →</span>
+          </div>
+        </article>
+
+        <article class="spot-card" data-id="7">
+          <div class="spot-head">
+            <div class="spot-num">7</div>
+            <div class="spot-title">
+              <h3>74号</h3>
+              <div class="spot-sub">艺术点位 · 《开国大典》画室相关</div>
+            </div>
+            <div class="tag">记忆点</div>
+          </div>
+          <div class="audio">
+            <button class="play">▶</button>
+            <div class="wave"><span></span><span></span><span></span><span></span><span></span><span></span></div>
+            <div style="font-size:12px;color:var(--muted);">适合做主推卡片</div>
+          </div>
+          <p class="spot-copy">这里是西总布胡同里很值得停一下的一个地方。因为 74 号曾是画家董希文创作《开国大典》的画室所在地。它表面低调，但历史分量一点都不轻。</p>
+          <div class="spot-foot">
+            <span>🎨 关键词：胡同与现代美术史</span>
+            <span class="next">下一站：更新观察点 →</span>
+          </div>
+        </article>
+
+        <article class="spot-card" data-id="8">
+          <div class="spot-head">
+            <div class="spot-num">8</div>
+            <div class="spot-title">
+              <h3>更新观察点</h3>
+              <div class="spot-sub">当下生活 · “不停车胡同”</div>
+            </div>
+            <div class="tag">现在进行时</div>
+          </div>
+          <div class="audio">
+            <button class="play">▶</button>
+            <div class="wave"><span></span><span></span><span></span><span></span><span></span><span></span></div>
+            <div style="font-size:12px;color:var(--muted);">路线结尾氛围点</div>
+          </div>
+          <p class="spot-copy">西总布胡同这些年做过一轮比较完整的整治提升：架空线入地了，环境更清爽了，路面和外立面也重新整理过。更特别的是，这里后来试着取消了路边停车，所以不少人会叫它“不停车胡同”。</p>
+          <div class="spot-foot">
+            <span>🌿 关键词：老城更新</span>
+            <span class="next">已到达本段终点</span>
+          </div>
+        </article>
+      </div>
+    </section>
+  </div>
+
+  <div class="sticky-player">
+    <button>▶</button>
+    <div class="player-copy">
+      <div class="kicker">正在推荐播放</div>
+      <div class="title">西总布胡同西口</div>
+      <div class="desc">从老北京到新北京的一次进入</div>
+    </div>
+  </div>
+  <script>
+    const scripts = {
+      1: '你现在到的，就是西总布胡同的入口。别看它安安静静，好像只是一条普通小路，这条胡同其实很有意思。它不长，但装下的内容不少：有名人旧居，有老院子，也有这几年城市更新留下的新变化。接下来这一路，不像是在看景点，更像是在一条胡同里，慢慢听懂一小段北京。',
+      4: '西总布胡同九号院，曾经和李济深、李宗仁两位近现代人物有关。胡同最有意思的地方就在这儿：外表看，它就是院墙、院门、窄路，看起来很平静；但只要你知道曾经谁在这里生活过、经过过，这条街的感觉立刻就不一样了。',
+      5: '西总布胡同二十一号院，曾是费正清居住过的地方。这个信息很有意思，因为它说明，北京胡同不只是北京人自己的生活空间，它也曾是很多外国人认识中国、理解中国的一扇窗口。',
+      7: '这里是西总布胡同里很值得停一下的一个地方。因为七十四号曾是画家董希文创作开国大典的画室所在地。它表面低调，但历史分量一点都不轻。',
+      8: '西总布胡同这些年做过一轮比较完整的整治提升：架空线入地了，环境更清爽了，路面和外立面也重新整理过。更特别的是，这里后来试着取消了路边停车，所以不少人会叫它不停车胡同。'
+    };
+
+    const titleMap = {
+      1: '西总布胡同西口',
+      4: '9号院',
+      5: '21号院',
+      7: '74号',
+      8: '更新观察点'
+    };
+
+    let activeId = 1;
+
+    function speakSpot(id) {
+      if (!('speechSynthesis' in window)) {
+        alert('当前浏览器不支持语音播报');
+        return;
+      }
+      const text = scripts[id];
+      if (!text) return;
+      activeId = id;
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'zh-CN';
+      utterance.rate = 1;
+      utterance.pitch = 1;
+      document.querySelector('.player-copy .title').textContent = titleMap[id];
+      document.querySelector('.player-copy .desc').textContent = '正在语音播报中';
+      document.querySelector('.sticky-player button').textContent = '❚❚';
+      utterance.onend = function () {
+        document.querySelector('.player-copy .desc').textContent = '播放完成，可切换下一个点位';
+        document.querySelector('.sticky-player button').textContent = '▶';
+      };
+      window.speechSynthesis.speak(utterance);
+    }
+
+    function toggleCurrent() {
+      if (!('speechSynthesis' in window)) return;
+      if (window.speechSynthesis.speaking) {
+        window.speechSynthesis.cancel();
+        document.querySelector('.player-copy .desc').textContent = '已暂停，可继续播放';
+        document.querySelector('.sticky-player button').textContent = '▶';
+      } else {
+        speakSpot(activeId);
+      }
+    }
+
+    document.querySelectorAll('.spot-card').forEach(function(card) {
+      const id = Number(card.dataset.id);
+      const btn = card.querySelector('.play');
+      btn.addEventListener('click', function() {
+        speakSpot(id);
+      });
+    });
+
+    document.querySelector('.sticky-player button').addEventListener('click', toggleCurrent);
+  </script>
+</body>
+</html>
