@@ -810,7 +810,17 @@
       const utterance = new SpeechSynthesisUtterance(spot.text);
       utterance.lang = 'zh-CN';
       utterance.rate = 0.95;
-      utterance.pitch = 1;
+      utterance.pitch = 1.3; // 调高音调，更接近女声
+      
+      // 尝试选择女性音色
+      const voices = window.speechSynthesis.getVoices();
+      const femaleVoice = voices.find(voice => 
+        voice.lang.includes('zh') && (voice.name.toLowerCase().includes('female') || voice.name.includes('女') || voice.name.includes('Nan') || voice.name.includes('Allison') || voice.name.includes('Siri'))
+      );
+      if (femaleVoice) {
+        utterance.voice = femaleVoice;
+      }
+      
       document.querySelector('.player-copy .title').textContent = titleMap[id];
       document.querySelector('.player-copy .desc').textContent = descMap[id] || '正在语音播报中';
       document.querySelector('.sticky-player button').textContent = '❚❚';
