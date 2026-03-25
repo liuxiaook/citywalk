@@ -467,21 +467,26 @@
       background: rgba(39,30,24,0.95);
       color: #fff;
       border-radius: 18px;
-      padding: 14px 16px;
       box-shadow: 0 16px 36px rgba(0,0,0,0.22);
       backdrop-filter: blur(14px);
       z-index: 29;
       max-height: 200px;
       overflow-y: auto;
+      padding: 0;
     }
 
     .voice-selector-header {
+      position: sticky;
+      top: 0;
+      background: rgba(39,30,24,0.98);
       font-size: 13px;
       color: rgba(255,255,255,0.8);
-      margin-bottom: 10px;
+      padding: 14px 16px 10px;
+      margin: 0;
       display: flex;
       justify-content: space-between;
       align-items: center;
+      z-index: 1;
     }
 
     .voice-selector-close {
@@ -498,6 +503,12 @@
       display: flex;
       align-items: center;
       justify-content: center;
+    }
+
+    .voice-list-container {
+      padding: 0 16px 14px;
+      max-height: calc(200px - 50px);
+      overflow-y: auto;
     }
 
     .voice-item {
@@ -735,7 +746,9 @@
       <span>选择语音音色</span>
       <button class="voice-selector-close" onclick="toggleVoiceSelector()">×</button>
     </div>
-    <div id="voice-list"></div>
+    <div class="voice-list-container">
+      <div id="voice-list"></div>
+    </div>
   </div>
 
   <div class="sticky-player">
@@ -813,6 +826,17 @@
     let nearestSpot = null;
     let notifiedSpotIds = [];
     let selectedVoice = null;
+
+    // 默认选中 Mei-Jia
+    function getDefaultVoice() {
+      const voices = window.speechSynthesis.getVoices();
+      const meiJia = voices.find(voice => 
+        voice.name.includes('Mei-Jia') || voice.name.includes('Mei Jia')
+      );
+      if (meiJia) {
+        selectedVoice = meiJia.voiceURI;
+      }
+    }
 
     // 计算两点之间的距离（米）
     function calculateDistance(lat1, lng1, lat2, lng2) {
@@ -989,6 +1013,7 @@
     // 页面加载后初始化定位
     window.addEventListener('load', () => {
       initLocation();
+      getDefaultVoice();
       loadVoiceList();
     });
 
