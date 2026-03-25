@@ -16,24 +16,6 @@
 
 ---
 
-## 项目截图
-
-### 首页 / 路线入口
-![首页截图](./screenshots/home.png)
-
-### 路线预览
-![路线截图](./screenshots/route.png)
-
-### 点位讲解卡片
-![点位截图](./screenshots/spot-card.png)
-
-### 播放状态
-![播放截图](./screenshots/player.png)
-
-> 如果你还没有截图，可以先删除这一部分，等后面补上。
-
----
-
 ## 项目简介
 
 很多人在旅行、citywalk 或陪朋友散步时，都会遇到这样的情况：
