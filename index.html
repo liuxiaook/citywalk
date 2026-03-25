@@ -458,6 +458,82 @@
       text-overflow: ellipsis;
     }
 
+    .voice-selector {
+      position: fixed;
+      left: 50%;
+      bottom: 90px;
+      transform: translateX(-50%);
+      width: min(390px, calc(100vw - 24px));
+      background: rgba(39,30,24,0.95);
+      color: #fff;
+      border-radius: 18px;
+      padding: 14px 16px;
+      box-shadow: 0 16px 36px rgba(0,0,0,0.22);
+      backdrop-filter: blur(14px);
+      z-index: 29;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+
+    .voice-selector-header {
+      font-size: 13px;
+      color: rgba(255,255,255,0.8);
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .voice-selector-close {
+      background: rgba(255,255,255,0.2);
+      border: none;
+      color: #fff;
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      font-size: 16px;
+      line-height: 1;
+      cursor: pointer;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .voice-item {
+      padding: 8px 10px;
+      margin: 4px 0;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.1);
+      cursor: pointer;
+      font-size: 13px;
+      transition: background 0.2s;
+    }
+
+    .voice-item:hover {
+      background: rgba(255,255,255,0.2);
+    }
+
+    .voice-item.active {
+      background: var(--accent);
+    }
+
+    .toggle-voice-btn {
+      position: fixed;
+      right: 16px;
+      bottom: 110px;
+      background: rgba(39,30,24,0.92);
+      color: #fff;
+      border: none;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      font-size: 20px;
+      cursor: pointer;
+      z-index: 28;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+    }
+
     @media (max-width: 380px) {
       h1 { font-size: 28px; }
       .meta { grid-template-columns: 1fr; }
@@ -652,6 +728,16 @@
     </section>
   </div>
 
+  <button class="toggle-voice-btn" onclick="toggleVoiceSelector()" title="选择声音">🔊</button>
+
+  <div class="voice-selector" id="voice-selector" style="display: none;">
+    <div class="voice-selector-header">
+      <span>选择语音音色</span>
+      <button class="voice-selector-close" onclick="toggleVoiceSelector()">×</button>
+    </div>
+    <div id="voice-list"></div>
+  </div>
+
   <div class="sticky-player">
     <button>▶</button>
     <div class="player-copy">
@@ -726,6 +812,7 @@
     let currentLng = null;
     let nearestSpot = null;
     let notifiedSpotIds = [];
+    let selectedVoice = null;
 
     // 计算两点之间的距离（米）
     function calculateDistance(lat1, lng1, lat2, lng2) {
@@ -812,13 +899,22 @@
       utterance.rate = 0.95;
       utterance.pitch = 1.3; // 调高音调，更接近女声
       
-      // 尝试选择女性音色
-      const voices = window.speechSynthesis.getVoices();
-      const femaleVoice = voices.find(voice => 
-        voice.lang.includes('zh') && (voice.name.toLowerCase().includes('female') || voice.name.includes('女') || voice.name.includes('Nan') || voice.name.includes('Allison') || voice.name.includes('Siri'))
-      );
-      if (femaleVoice) {
-        utterance.voice = femaleVoice;
+      // 使用用户选择的音色
+      if (selectedVoice) {
+        const voices = window.speechSynthesis.getVoices();
+        const voice = voices.find(v => v.voiceURI === selectedVoice);
+        if (voice) {
+          utterance.voice = voice;
+        }
+      } else {
+        // 默认尝试选择女性音色
+        const voices = window.speechSynthesis.getVoices();
+        const femaleVoice = voices.find(voice => 
+          voice.lang.includes('zh') && (voice.name.toLowerCase().includes('female') || voice.name.includes('女') || voice.name.includes('Nan') || voice.name.includes('Allison') || voice.name.includes('Siri'))
+        );
+        if (femaleVoice) {
+          utterance.voice = femaleVoice;
+        }
       }
       
       document.querySelector('.player-copy .title').textContent = titleMap[id];
@@ -893,7 +989,53 @@
     // 页面加载后初始化定位
     window.addEventListener('load', () => {
       initLocation();
+      loadVoiceList();
     });
+
+    // 当语音列表加载完成后
+    speechSynthesis.onvoiceschanged = function() {
+      loadVoiceList();
+    };
+
+    // 加载语音列表
+    function loadVoiceList() {
+      const voices = window.speechSynthesis.getVoices();
+      const voiceListEl = document.getElementById('voice-list');
+      if (!voiceListEl) return;
+      
+      // 只显示中文语音
+      const zhVoices = voices.filter(voice => voice.lang.includes('zh') || voice.lang.includes('cmn'));
+      
+      if (zhVoices.length === 0) {
+        voiceListEl.innerHTML = '<div style="font-size:12px;color:rgba(255,255,255,0.6);padding:10px 0;">未找到中文语音，请在系统设置中添加中文语音</div>';
+        return;
+      }
+      
+      voiceListEl.innerHTML = '';
+      zhVoices.forEach((voice, index) => {
+        const div = document.createElement('div');
+        div.className = 'voice-item' + (selectedVoice === voice.voiceURI ? ' active' : '');
+        div.innerHTML = `${voice.name} <span style="opacity:0.7;font-size:11px">(${voice.lang})</span>`;
+        div.onclick = function() {
+          selectedVoice = voice.voiceURI;
+          document.querySelectorAll('.voice-item').forEach(item => item.classList.remove('active'));
+          div.classList.add('active');
+          speakSpot(activeId);
+        };
+        voiceListEl.appendChild(div);
+      });
+    }
+
+    // 切换语音选择器显示
+    function toggleVoiceSelector() {
+      const selector = document.getElementById('voice-selector');
+      if (selector.style.display === 'none') {
+        loadVoiceList();
+        selector.style.display = 'block';
+      } else {
+        selector.style.display = 'none';
+      }
+    }
   </script>
 </body>
 </html>
