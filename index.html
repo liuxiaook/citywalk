@@ -533,7 +533,7 @@
         <div class="point" style="left: 328px; top: 124px;"></div>
         <div class="point-label" style="left: 336px; top: 114px;">8 更新观察点</div>
 
-        <div class="floating-now">🎧 检测到你已接近起点，建议先播放「西总布胡同西口」</div>
+        <div class="floating-now" id="location-status">⏳ 正在获取您的位置...</div>
       </div>
     </section>
 
@@ -661,13 +661,49 @@
     </div>
   </div>
   <script>
-    const scripts = {
-      1: '你现在到的，就是西总布胡同的入口。别看它安安静静，好像只是一条普通小路，这条胡同其实很有意思。它不长，但装下的内容不少：有名人旧居，有老院子，也有这几年城市更新留下的新变化。接下来这一路，不像是在看景点，更像是在一条胡同里，慢慢听懂一小段北京。',
-      4: '西总布胡同九号院，曾经和李济深、李宗仁两位近现代人物有关。胡同最有意思的地方就在这儿：外表看，它就是院墙、院门、窄路，看起来很平静；但只要你知道曾经谁在这里生活过、经过过，这条街的感觉立刻就不一样了。',
-      5: '西总布胡同二十一号院，曾是费正清居住过的地方。这个信息很有意思，因为它说明，北京胡同不只是北京人自己的生活空间，它也曾是很多外国人认识中国、理解中国的一扇窗口。',
-      7: '这里是西总布胡同里很值得停一下的一个地方。因为七十四号曾是画家董希文创作开国大典的画室所在地。它表面低调，但历史分量一点都不轻。',
-      8: '西总布胡同这些年做过一轮比较完整的整治提升：架空线入地了，环境更清爽了，路面和外立面也重新整理过。更特别的是，这里后来试着取消了路边停车，所以不少人会叫它不停车胡同。'
-    };
+    // 点位坐标数据（北京市东城区西总布胡同沿线）
+    const spots = [
+      {
+        id: 1,
+        name: '西总布胡同西口',
+        lat: 39.9136,
+        lng: 116.4132,
+        radius: 50,
+        text: '你现在到的，就是西总布胡同的入口。别看它安安静静，好像只是一条普通小路，这条胡同其实很有意思。它不长，但装下的内容不少：有名人旧居，有老院子，也有这几年城市更新留下的新变化。接下来这一路，不像是在看景点，更像是在一条胡同里，慢慢听懂一小段北京。'
+      },
+      {
+        id: 4,
+        name: '9号院',
+        lat: 39.9138,
+        lng: 116.4145,
+        radius: 50,
+        text: '西总布胡同九号院，曾经和李济深、李宗仁两位近现代人物有关。胡同最有意思的地方就在这儿：外表看，它就是院墙、院门、窄路，看起来很平静；但只要你知道曾经谁在这里生活过、经过过，这条街的感觉立刻就不一样了。'
+      },
+      {
+        id: 5,
+        name: '21号院',
+        lat: 39.9140,
+        lng: 116.4158,
+        radius: 50,
+        text: '西总布胡同二十一号院，曾是费正清居住过的地方。这个信息很有意思，因为它说明，北京胡同不只是北京人自己的生活空间，它也曾是很多外国人认识中国、理解中国的一扇窗口。'
+      },
+      {
+        id: 7,
+        name: '74号',
+        lat: 39.9142,
+        lng: 116.4172,
+        radius: 50,
+        text: '这里是西总布胡同里很值得停一下的一个地方。因为七十四号曾是画家董希文创作开国大典的画室所在地。它表面低调，但历史分量一点都不轻。'
+      },
+      {
+        id: 8,
+        name: '更新观察点',
+        lat: 39.9144,
+        lng: 116.4185,
+        radius: 50,
+        text: '西总布胡同这些年做过一轮比较完整的整治提升：架空线入地了，环境更清爽了，路面和外立面也重新整理过。更特别的是，这里后来试着取消了路边停车，所以不少人会叫它不停车胡同。'
+      }
+    ];
 
     const titleMap = {
       1: '西总布胡同西口',
@@ -677,42 +713,127 @@
       8: '更新观察点'
     };
 
+    const descMap = {
+      1: '从老北京到新北京的一次进入',
+      4: '李济深、李宗仁相关故事',
+      5: '费正清旧居国际视角',
+      7: '《开国大典》画室所在地',
+      8: '老城更新现在进行时'
+    };
+
     let activeId = 1;
+    let currentLat = null;
+    let currentLng = null;
+    let nearestSpot = null;
+    let notifiedSpotIds = [];
+
+    // 计算两点之间的距离（米）
+    function calculateDistance(lat1, lng1, lat2, lng2) {
+      const R = 6371000;
+      const dLat = (lat2 - lat1) * Math.PI / 180;
+      const dLng = (lng2 - lng1) * Math.PI / 180;
+      const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                Math.sin(dLng/2) * Math.sin(dLng/2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+      return R * c;
+    }
+
+    // 找到最近的点位
+    function findNearestSpot() {
+      if (!currentLat || !currentLng) return null;
+      let minDistance = Infinity;
+      let nearest = null;
+      spots.forEach(spot => {
+        const distance = calculateDistance(currentLat, currentLng, spot.lat, spot.lng);
+        if (distance < minDistance) {
+          minDistance = distance;
+          nearest = { ...spot, distance };
+        }
+      });
+      return nearest;
+    }
+
+    // 检查是否在点位范围内
+    function checkNearbySpots() {
+      if (!currentLat || !currentLng) return;
+      const nearest = findNearestSpot();
+      if (!nearest) return;
+
+      nearestSpot = nearest;
+      const statusEl = document.getElementById('location-status');
+
+      if (nearest.distance <= nearest.radius) {
+        statusEl.innerHTML = `📍 你已接近 <strong>${nearest.name}</strong>（${Math.round(nearest.distance)} 米）`;
+        statusEl.style.background = 'rgba(143, 79, 42, 0.9)';
+        statusEl.style.color = '#fff';
+
+        // 如果第一次到达该点位，自动提示并高亮
+        if (!notifiedSpotIds.includes(nearest.id)) {
+          notifiedSpotIds.push(nearest.id);
+          highlightSpotCard(nearest.id);
+          // 自动播放讲解
+          setTimeout(() => {
+            speakSpot(nearest.id);
+          }, 800);
+        }
+      } else {
+        statusEl.innerHTML = `👣 最近点位：${nearest.name}，还有 ${Math.round(nearest.distance)} 米`;
+        statusEl.style.background = 'rgba(255,255,255,0.9)';
+        statusEl.style.color = 'var(--text)';
+      }
+    }
+
+    // 高亮当前点位卡片
+    function highlightSpotCard(id) {
+      document.querySelectorAll('.spot-card').forEach(card => {
+        card.style.borderColor = 'rgba(255,255,255,0.75)';
+        card.style.boxShadow = 'var(--shadow)';
+      });
+      const currentCard = document.querySelector(`.spot-card[data-id="${id}"]`);
+      if (currentCard) {
+        currentCard.style.borderColor = 'var(--accent)';
+        currentCard.style.boxShadow = '0 16px 40px rgba(143, 79, 42, 0.18)';
+        currentCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }
 
     function speakSpot(id) {
       if (!('speechSynthesis' in window)) {
         alert('当前浏览器不支持语音播报');
         return;
       }
-      const text = scripts[id];
-      if (!text) return;
+      const spot = spots.find(s => s.id === id);
+      if (!spot) return;
       activeId = id;
       window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(text);
+      const utterance = new SpeechSynthesisUtterance(spot.text);
       utterance.lang = 'zh-CN';
-      utterance.rate = 1;
+      utterance.rate = 0.95;
       utterance.pitch = 1;
       document.querySelector('.player-copy .title').textContent = titleMap[id];
-      document.querySelector('.player-copy .desc').textContent = '正在语音播报中';
+      document.querySelector('.player-copy .desc').textContent = descMap[id] || '正在语音播报中';
       document.querySelector('.sticky-player button').textContent = '❚❚';
       utterance.onend = function () {
-        document.querySelector('.player-copy .desc').textContent = '播放完成，可切换下一个点位';
+        document.querySelector('.player-copy .desc').textContent = '播放完成，继续往前走吧';
         document.querySelector('.sticky-player button').textContent = '▶';
       };
       window.speechSynthesis.speak(utterance);
+      highlightSpotCard(id);
     }
 
     function toggleCurrent() {
       if (!('speechSynthesis' in window)) return;
       if (window.speechSynthesis.speaking) {
         window.speechSynthesis.cancel();
-        document.querySelector('.player-copy .desc').textContent = '已暂停，可继续播放';
+        document.querySelector('.player-copy .desc').textContent = '已暂停，点击继续播放';
         document.querySelector('.sticky-player button').textContent = '▶';
       } else {
         speakSpot(activeId);
       }
     }
 
+    // 绑定点击事件
     document.querySelectorAll('.spot-card').forEach(function(card) {
       const id = Number(card.dataset.id);
       const btn = card.querySelector('.play');
@@ -722,6 +843,47 @@
     });
 
     document.querySelector('.sticky-player button').addEventListener('click', toggleCurrent);
+
+    // 获取定位
+    function initLocation() {
+      if (!navigator.geolocation) {
+        document.getElementById('location-status').textContent = '❌ 你的浏览器不支持定位功能';
+        return;
+      }
+
+      const success = (position) => {
+        currentLat = position.coords.latitude;
+        currentLng = position.coords.longitude;
+        checkNearbySpots();
+        document.getElementById('location-status').textContent = `✅ 定位成功，正在跟随行走`;
+      };
+
+      const error = () => {
+        document.getElementById('location-status').innerHTML = '⚠️ 定位被拒绝，你可以手动点击播放';
+      };
+
+      navigator.geolocation.getCurrentPosition(success, error, {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 30000
+      });
+
+      // 持续监听位置更新
+      navigator.geolocation.watchPosition((position) => {
+        currentLat = position.coords.latitude;
+        currentLng = position.coords.longitude;
+        checkNearbySpots();
+      }, error, {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 30000
+      });
+    }
+
+    // 页面加载后初始化定位
+    window.addEventListener('load', () => {
+      initLocation();
+    });
   </script>
 </body>
 </html>
